@@ -2,9 +2,11 @@ import React from "react";
 
 import { Route, Redirect } from "react-router-dom";
 
+import { useFirebase } from "./FirebaseProvider";
+
 function PrivateRoute({ component: Component, ...resProps }) {
 
-    const user = null;
+    const { user } = useFirebase();
     return <Route
         {...resProps}
         render={props => {
