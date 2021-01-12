@@ -12,10 +12,15 @@ import Grid from '@material-ui/core/Grid';
 import useStyles from './style';
 
 // react router dom
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 
-// validator
+// import validator
 import isEmail from "validator/lib/isEmail";
+
+// import firebase hooks
+import { useFirebase } from "../../components/FirebaseProvider";
+
+
 function Registrasi() {
     const classes = useStyles();
     const [form, setForm] = useState({
@@ -29,6 +34,11 @@ function Registrasi() {
         password: '',
         ulangi_password: ''
     });
+
+
+    const { auth, user } = useFirebase();
+
+    const [isSubmitting, setSubmitting] = useState(false);
 
     const handleChange = e => {
         setForm({
@@ -63,13 +73,48 @@ function Registrasi() {
         return newError;
     }
 
-    const handleSubmit = e => {
+    const handleSubmit = async e => {
         e.preventDefault();
         const findErrors = validate();
 
-        if (Object.keys(findErrors).some(err => err !== '')) {
+        if (Object.values(findErrors).some(err => err !== '')) {
             setError(findErrors);
+        } else {
+            try {
+                setSubmitting(true);
+                await auth.createUserWithEmailAndPassword(form.email, form.password);
+            } catch (e) {
+                const newError = {};
+                switch (e.code) {
+                    case 'auth/email-already-in-use':
+                        newError.email = 'Email sudah terdaftar';
+                        break;
+
+                    case 'auth/invalid-email':
+                        newError.email = 'Email tidak valid';
+                        break;
+
+                    case 'auth/weak-password':
+                        newError.password = 'Password lemah';
+                        break;
+
+                    case 'auth/operation-not-allowed':
+                        newError.email = 'Metode emali dan password tidak di dukung';
+                        break;
+
+                    default:
+                        newError.email = 'Terjadi kesalahan silahkan coba lagi';
+                        break;
+
+                }
+                setError(newError);
+                setSubmitting(false);
+            }
         }
+    }
+
+    if (user) {
+        return <Redirect to="/" />
     }
 
     return <Container maxWidth="xs">
@@ -91,6 +136,7 @@ function Registrasi() {
                     helperText={error.email}
                     onChange={handleChange}
                     error={error.email ? true : false}
+                    disabled={isSubmitting}
                 />
                 <TextFiled
                     id="password"
@@ -104,6 +150,7 @@ function Registrasi() {
                     helperText={error.password}
                     onChange={handleChange}
                     error={error.password ? true : false}
+                    disabled={isSubmitting}
                 />
                 <TextFiled
                     id="ulangi_password"
@@ -117,6 +164,7 @@ function Registrasi() {
                     helperText={error.ulangi_password}
                     onChange={handleChange}
                     error={error.ulangi_password ? true : false}
+                    disabled={isSubmitting}
                 />
 
                 <Grid container className={classes.button}>
@@ -126,15 +174,20 @@ function Registrasi() {
                             variant="contained"
                             color="primary"
                             type="submit"
+                            disabled={isSubmitting}
                         >
                             Daftar
                      </Button>
                     </Grid>
                     <Grid item>
-                        <Link to="./login">
+                        <Link
+                            to="./login"
+                            style={{ textDecoration: 'none' }}
+                        >
                             <Button
                                 size="large"
                                 variant="contained"
+                                disabled={isSubmitting}
                             >
                                 Login
                             </Button>
