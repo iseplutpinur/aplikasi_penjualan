@@ -20,6 +20,8 @@ import isEmail from "validator/lib/isEmail";
 // import firebase hooks
 import { useFirebase } from "../../components/FirebaseProvider";
 
+// app component
+import AppLoading from "../../components/AppLoading";
 
 function Registrasi() {
     const classes = useStyles();
@@ -36,7 +38,7 @@ function Registrasi() {
     });
 
 
-    const { auth, user } = useFirebase();
+    const { auth, user, loading } = useFirebase();
 
     const [isSubmitting, setSubmitting] = useState(false);
 
@@ -111,6 +113,10 @@ function Registrasi() {
                 setSubmitting(false);
             }
         }
+    }
+
+    if (loading) {
+        return <AppLoading />
     }
 
     if (user) {
