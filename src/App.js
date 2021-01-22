@@ -31,7 +31,6 @@ function App() {
 						<Router>
 							<Switch>
 								<PrivateRoute path="/" exact component={Private} />
-								<PrivateRoute path="/home" component={Private} />
 								<PrivateRoute path="/produk" component={Private} />
 								<PrivateRoute path="/transaksi" component={Private} />
 								<PrivateRoute path="/pengaturan" component={Private} />
