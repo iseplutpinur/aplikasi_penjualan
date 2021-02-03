@@ -55,7 +55,7 @@ export default function Private() {
     // const history = useHistory();
     const { auth } = useFirebase();
     const classes = useStyles();
-    const [open, setOpen] = React.useState(true);
+    const [open, setOpen] = React.useState(false);
     const handleDrawerOpen = () => {
         setOpen(true);
     };
